@@ -1,5 +1,5 @@
 ---
-title: "Human Resource Explortary Analysis"
+title: "Human Resource Exploratory Analysis"
 author: "Yun-Hsiang Chan"
 output:
   pdf_document: default
@@ -9,7 +9,7 @@ output:
 
 The human resource dataset is a simulated dataset from Kaggle. By exploring this dataset, we are able to extract good insights for problems that the Human Resource department deals daily. This project mainly focuses on explortary analysis.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, result = 'hide'}
 library(tidyverse)
 human_resource <- read_csv('HR_comma_sep.csv')
 ```
@@ -58,11 +58,11 @@ Now we can randomly pick some rows to understand the basic structure of this dat
 human_resource[sample(nrow(human_resource), 10), ]
 ```
 
-## Employee information
+# Employee information
 
 First, let's take a look at the salary structure of the company.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% 
   group_by(salary) %>% 
   summarise(salary_count = n()) %>% 
@@ -75,13 +75,13 @@ It is a very typical firm structure. Most of the employees receive low and mediu
 
 Then we can investigate the condition of employees' monthly working hours.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(x = average_monthly_hours)) + geom_histogram(bins = 30)
 ```
 
 In this company, the median of the average monthly working hours is around 200. The distribution of monthly working hours is bimodal. One mode is around 150 hours and the other mode is around 260 hours.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(x = average_monthly_hours)) + 
   geom_histogram(bins = 30) + 
   facet_grid(~salary)
@@ -91,7 +91,7 @@ If we segment the groups for employees receiving different salary and view their
 
 Next step, we can see the condition of employees' satisfaction level.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(x = satisfaction_level)) +
   geom_histogram(bins = 30) + geom_vline(xintercept = median(human_resource$satisfaction_level))
 ```
@@ -100,17 +100,17 @@ By histogram, we know that a small amount of people are extremely unsatisfied. A
 
 At last, we can check the distribution of the time employees stay in the company.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(x = time_spend_company)) + geom_bar()
 ```
 
 Most of the employees stay for less than 4 years. The most usual length of stay is 3 yeras. Only a few employees stay for more than 7 years. It indicates that this is a company open for less than 10 years.  
 
-## Department Information
+# Department Information
 
 First, we need to know the size of the departments.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource_dep <- human_resource %>% 
   group_by(department) %>% 
   summarise(n = n()) %>% 
@@ -127,7 +127,7 @@ From the pie chart, we can know that in this firm, the biggest department is sal
 
 Then let's see some statistics related each department.  
 
-```{r}
+```{r, echo = FALSE}
 # Calculate the mean value of several variables, the proportion of work accident and proportion of people left in each department
 hr_department_1 <- human_resource %>%
   group_by(department) %>% 
@@ -185,7 +185,7 @@ knitr::kable(hr_department_final_1)
 knitr::kable(hr_department_final_2)
 ```
 
-To it clear, I split the statistics into two tables.  
+To make it clear, I split the statistics into two tables.  
 
 The first table includes the variables indicating nothing important. These variables (mean average monthly working hours, mean satisfaction level, ...) are similar in each department.  
 
@@ -195,7 +195,7 @@ The second table are the variables that show differences. Compared to other depa
 
 To gain some insights, we need to see whether there is any relationship between the variables. The tool I use is correlation matrix.  
 
-```{r}
+```{r, echo = FALSE}
 library(corrplot)
 human_resource_num <- human_resource[, -which(names(human_resource) %in% c("salary", "department"))]
 hr_cor_matrix <- round(cor(human_resource_num), 2)
@@ -215,7 +215,7 @@ Remember we discover three factors (satisfaction level, salary, work accident an
 
 Let's first investigate the satisfaction level.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(y = satisfaction_level)) +
   geom_boxplot() + facet_grid(~left)
 ```
@@ -224,7 +224,7 @@ Without doubt, the boxplot implies that unsatisfaction is one of the main reason
 
 Then we can look at the salary.  
 
-```{r}
+```{r, echo = FALSE}
 total_number_employee <- as.double(count(human_resource))
 
 human_resource %>% 
@@ -258,7 +258,7 @@ By comparing the barplots, we can know that among employees who didn't leave, 7.
 
 Next step, we need to test if work accident is related to leave of the employees.  
 
-```{r}
+```{r, echo = FALSE}
 knitr::kable(
   human_resource %>% group_by(left) %>% 
   summarise(n_employee = n(), work_accident_prop = mean(Work_accident)) 
@@ -271,7 +271,7 @@ It is obvious that the proportion of people who suffer work accident and leave i
 
 Lastly, let's check if people who stay longer are more likely to leave.  
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% ggplot(aes(x = time_spend_company)) + geom_bar() + facet_grid(~left)
 human_resource %>% group_by(left) %>% summarise(time_stay_company = mean(time_spend_company))
 ```
@@ -282,7 +282,7 @@ In conclusion, we believe that the employees leave mainly due to unsatisfaction 
 
 # Question: Performance difference between two groups of people who choose to leave.
 
-```{r}
+```{r, echo = FALSE}
 human_resource %>% 
   filter(left == 1) %>% 
   ggplot(aes(x = satisfaction_level)) +
@@ -295,12 +295,12 @@ Is it because of the salary or working hours? Should we retain those people?
 
 Now we split the people who left into two groups. The first group is the people who have less than 0.7 satisfaction level. The second group is the people who have more than 0.7 satisfaction level. We call them low satisfaction group and high satisfaction group.  
 
-```{r}
+```{r, echo = FALSE}
 hr_leave_low_sat <- human_resource %>% filter(left == 1 & satisfaction_level < 0.7)
 hr_leave_high_sat <- human_resource %>% filter(left == 1 & satisfaction_level >= 0.7)
 ```
 
-```{r}
+```{r, echo = FALSE}
 num_low_group <- as.double(count(hr_leave_low_sat))
 num_high_group <- as.double(count(hr_leave_high_sat))
 
@@ -368,7 +368,7 @@ Three, the last evaluation score must be greater than half of all employees.
 
 These numbers are selected out of the quantiles of the variables.  
 
-```{r}
+```{r, echo = FALSE}
 quantile(human_resource$number_project)
 quantile(human_resource$time_spend_company)
 quantile(human_resource$last_evaluation)
@@ -385,7 +385,7 @@ I create two time series plots first.
 The first plot is about average working hours, average number of project and the status (leave or stay).  
 The second plot is about average satisfaction level, average salary, the number of workers and the status (leave or stay).  
 
-```{r}
+```{r, echo = FALSE}
 time_spend_series <- hr_exp_employee %>% 
   group_by(left, time_spend_company) %>% 
   summarise(n = n(),
@@ -437,7 +437,7 @@ We only group the employees based on whether they leave and the time they stay i
 I create a series of plots based on these new groups. The plots are about the proportion of employees leave/stay in a specific year. (i.e if the total number of employee that spend 3 years in the company is 1000, and the number of people who choose to left in the third year with 4 project completed is 200, the proportion is 0.2.) The number next to the point is the average satisfaction level of this group of employees.  
 
 
-```{r, fig.width = 6}
+```{r, fig.width = 6, echo = FALSE}
 num_data <- hr_exp_employee %>% group_by(time_spend_company) %>% summarise(total_number_per_year = n())
 
 time_spend_series2 <- hr_exp_employee %>% 
