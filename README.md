@@ -1,4 +1,4 @@
-# Summer2020-Project
+# Old Projects Repo
 This is a repo to display my projects (including some data science projects and software projects) before summer 2020.
 
 There are:
